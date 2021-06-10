@@ -18,7 +18,6 @@ class(nb) <- "gra"
 dt <- d2 |> 
   select(-scheduledForecast, -snow_height) |> #sF is useless; s_h has too many NAs 
   mutate_at(c("icing", "day", "regionCode"), as.factor) |> #Binary variables as factors
-  mutate_if(is.numeric, \(x) x-mean(x)) |> #Centre numeric predictors...
   mutate(faultCount = d2$faultCount) |> #Except for the response variable
   mutate_if(is.character, as.factor) |> #Character variables as factors 
   mutate( #Ordinal variables as ordered factors
@@ -45,27 +44,29 @@ dt_cen <- dt_id |>
 set.seed(1)
 # Initialise
 n_resamples <- 25
-n_clusters <- dt_cen$faultID |> 
-  as.numeric() |> 
-  max()
+n_clusters <- dt_cen$faultDate |> 
+  unique() |> 
+  length()
 cvm <- matrix(0, nrow = nrow(dt_cen), ncol = n_resamples)
 # Create an indicator matrix, where 
 # 1 means the sample is included
 # 0 means it's excluded.
 for(i in 1:n_resamples){
-  included_clusters <- sample(unique(dt_cen$faultID),
+  included_clusters <- sample(unique(dt_cen$faultDate),
                               size = n_clusters / 2,
                               replace = FALSE)
-  cvm[,i] <- dt_cen$faultID %in% included_clusters |> 
+  cvm[,i] <- dt_cen$faultDate %in% included_clusters |> 
     as.numeric()
 }
+
+wind_direction_boundry_knots <- c(0, 360) - mean(dt_id$wind_direction)
 
 # Save data
 write_rds(nb, "res/nb_data.rds")
 write_rds(dt_id, "res/ready_train_1_2.rds")
 write_rds(dt_cen, "res/cen_ready_train_1_2.rds")
 write_rds(cvm, "res/cvm_25.rds")
-
+write_rds(wind_direction_boundry_knots, "res/wind_direction_boundry_knots.rds")
 
 
 # library(mboost)

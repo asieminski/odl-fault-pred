@@ -38,9 +38,6 @@ mu_f <- faultCount ~
   bols(risk, intercept = FALSE, df = 1) +
   bols(lightningCat, intercept = FALSE, df = 1) +
   
-  # -- Random effects --#
-  bols(regionCode, intercept = FALSE, df = 1) +
-  bmrf(regionCode,bnd=nb, center = TRUE, df = 1)
   
   # Gust X Direction #
   #bols(wind_gust_max, intercept = FALSE) +  #Already added above
@@ -48,7 +45,7 @@ mu_f <- faultCount ~
   bols(wind_direction, by = wind_gust_max, intercept = FALSE) +
   bbs(wind_direction, center = TRUE, df = 1, cyclic = TRUE, 
       boundary.knots = wind_direction_bk) %X% 
-    bbs(wind_gust_max, center = TRUE, df = 1)
+    bbs(wind_gust_max, center = TRUE, df = 1) +
     
   # Direction X Region
   #bols(wind_direction, intercept = FALSE) + #Already added above
@@ -69,7 +66,12 @@ mu_f <- faultCount ~
        intercept = FALSE) %X% bols(regionCode, intercept = FALSE, df = 1) +
   bbs(wind_direction, center = TRUE, df = 1, cyclic = TRUE, 
       boundary.knots = wind_direction_bk) %X% 
-    bbs(wind_gust_max, by = regionCode, center = TRUE, df = 1) 
+    bbs(wind_gust_max, by = regionCode, center = TRUE, df = 1) +
+  
+  # -- Random effects --#
+  bols(regionCode, intercept = FALSE, df = 1) +
+  bmrf(regionCode,bnd=nb, center = TRUE, df = 1)
+  
   
     
 sigma_f <- faultCount ~ bols(Intercept, intercept = FALSE) #+ bols(day, intercept = FALSE)

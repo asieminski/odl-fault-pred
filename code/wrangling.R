@@ -22,7 +22,8 @@ dt <- d2 |>
     Intercept = 1,
     risk = factor(risk, ordered = TRUE, 
                   levels = c("Green", "Amber", "Red")),
-    lightningCat = as.ordered(lightningCat)
+    lightningCat = as.ordered(lightningCat),
+    dir_X_regionCode = stringr::str_c(wind_dir_factor, regionCode)
   ) |> 
   mutate_at(c("dateOfForecast", "faultDate"), as.Date) |> 
   group_by(regionCode, day) |> 

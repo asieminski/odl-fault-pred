@@ -49,7 +49,7 @@ dt_cen_sc <- dt_id |>
       )
     ) |> 
   mutate(lag1_faultCount = ifelse(
-    day == '1', lag1_faultCount, 0
+    day == '2', lag1_faultCount, 0
     ))
 
 # Create a resampling matrix
@@ -78,7 +78,7 @@ wind_direction_boundry_knots <-
 # Save data
 write_rds(nb, "res/nb_data.rds")
 write_rds(dt_id, "res/ready_train_1_2.rds")
-write_rds(dt_cen, "res/cen_ready_train_1_2.rds")
+write_rds(dt_cen_sc, "res/cen_sc_ready_train_1_2.rds")
 write_rds(cvm, "res/cvm_25.rds")
 write_rds(wind_direction_boundry_knots, "res/wind_direction_boundry_knots.rds")
 

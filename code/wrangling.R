@@ -46,7 +46,7 @@ dt_cen_sc <- dt_id |>
       c(temp_max:snow_depth, 
         lag1_faultCount, 
         lag2_faultCount), 
-      \(x) x-mean(x)/sd(x)
+      \(x) (x-mean(x))/sd(x)
       )
     ) |> 
   mutate(lag1_faultCount = ifelse(

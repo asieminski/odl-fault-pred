@@ -23,7 +23,7 @@ dt <- d2 |>
     risk = factor(risk, ordered = TRUE, 
                   levels = c("Green", "Amber", "Red")),
     lightningCat = as.ordered(lightningCat),
-    dir_X_regionCode = stringr::str_c(wind_dir_factor, regionCode)
+    dir_X_regionCode = factor(stringr::str_c(wind_dir_factor, regionCode))
   ) |> 
   mutate_at(c("dateOfForecast", "faultDate"), as.Date) |> 
   group_by(regionCode, day) |> 
@@ -46,7 +46,7 @@ dt_cen_sc <- dt_id |>
       c(temp_max:snow_depth, 
         lag1_faultCount, 
         lag2_faultCount), 
-      \(x) (x-mean(x))/sd(x)
+      \(x) (x-mean(x, na.rm = TRUE))/sd(x, na.rm = TRUE)
       )
     ) |> 
   mutate(lag1_faultCount = ifelse(
@@ -61,7 +61,6 @@ write_rds(nb, "res/nb_data.rds")
 write_rds(dt_id, "res/ready_train_1_2.rds")
 write_rds(dt_cen_sc, "res/cen_sc_ready_train_1_2.rds")
 write_rds(wind_direction_boundry_knots, "res/wind_direction_boundry_knots.rds")
-
 
 
 

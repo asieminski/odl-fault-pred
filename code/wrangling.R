@@ -1,4 +1,5 @@
 library(tidyverse)
+library(mboost)
 
 d2 <- read_rds("data/trainingData/trainingData_1_2.rds") |>
   as_tibble()
@@ -56,8 +57,14 @@ dt_cen_sc <- dt_id |>
 wind_direction_boundry_knots <- 
   (c(0, 360) - mean(dt_id$wind_direction))/sd(dt_id$wind_direction)
 
+set.seed(1)
+cv_folds <- cv(rep(1, nrow(dt_cen_sc)),
+               type = "kfold", B = 4, 
+               strata = factor(dt_cen_sc$faultDate))
+
 # Save data
 write_rds(nb, "res/nb_data.rds")
+write_rds(cv_folds, "res/cv_folds.rds")
 write_rds(dt_id, "res/ready_train_1_2.rds")
 write_rds(dt_cen_sc, "res/cen_sc_ready_train_1_2.rds")
 write_rds(wind_direction_boundry_knots, "res/wind_direction_boundry_knots.rds")

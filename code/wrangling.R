@@ -24,7 +24,8 @@ dt <- d2 |>
     risk = factor(risk, ordered = TRUE, 
                   levels = c("Green", "Amber", "Red")),
     lightningCat = as.ordered(lightningCat),
-    dir_X_regionCode = factor(stringr::str_c(wind_dir_factor, regionCode))
+    dir_X_regionCode = factor(stringr::str_c(wind_dir_factor, regionCode)),
+    zeroFault = factor(ifelse(faultCount == 0, "zero", "positive"))
   ) |> 
   mutate_at(c("dateOfForecast", "faultDate"), as.Date) |> 
   group_by(regionCode, day) |> 
@@ -69,6 +70,21 @@ write_rds(dt_id, "res/ready_train_1_2.rds")
 write_rds(dt_cen_sc, "res/cen_sc_ready_train_1_2.rds")
 write_rds(wind_direction_boundry_knots, "res/wind_direction_boundry_knots.rds")
 
+fault_only_dt_cen_sc <- dt_id |> 
+  filter(faultCount != 0) |> 
+  mutate(
+    across(
+      c(temp_max:snow_depth, 
+        lag1_faultCount, 
+        lag2_faultCount), 
+      \(x) (x-mean(x, na.rm = TRUE))/sd(x, na.rm = TRUE)
+    )
+  ) |> 
+  mutate(lag1_faultCount = ifelse(
+    day == '2', lag1_faultCount, 0
+  ))
+write_rds(fault_only_dt_cen_sc, "res/fault_only_cen_sc_ready_train_1_2.rds")
+fault_only_cv_folds <- cv_folds[dt$faultCount != 0, ]
 
-
+write_rds(fault_only_cv_folds, "res/fault_only_cv_folds.rds")
 

@@ -1,4 +1,4 @@
-# norm_fit()
+# norm_fit() -
 # Finds means and standard deviations for all numeric variables in 
 # ..a dataset except for the ones specified in the "omit" argument.
 # Inputs:

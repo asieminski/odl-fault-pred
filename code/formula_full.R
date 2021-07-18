@@ -13,7 +13,7 @@ mu_f <- faultCount ~
   bols(wind_dir_factor, intercept = FALSE, df = 1) + # Unordered
   bols(risk, intercept = FALSE, df = 1) + # Ordinal
   bols(lightningCat, intercept = FALSE, df = 1) + # Ordinal
-  
+
   # Continuous Variables
   bols(wind_gust_max, intercept = FALSE) +
   bbs(wind_gust_max, center = TRUE, df = 1) +
@@ -30,55 +30,59 @@ mu_f <- faultCount ~
   bbs(rain_min, center = TRUE, df = 1) +
   bols(rain_max, intercept = FALSE) +
   bbs(rain_max, center = TRUE, df = 1) +
-  
+ 
   # Wind-related interactions
   # Gust X Direction #
-  bols(wind_gust_max, by = wind_dir_factor, 
+  bols(wind_gust_max, by = wind_dir_factor,
        intercept = FALSE, df = 1) +
-  bbs(wind_gust_max, by = wind_dir_factor, 
+  bbs(wind_gust_max, by = wind_dir_factor,
       center = TRUE, df = 1) +
   # Gust X Region
   bols(wind_gust_max, by = regionCode, intercept = FALSE, df = 1) +
   bbs(wind_gust_max, by = regionCode, center = TRUE, df = 1) +
-  
+
   # Mean X Direction #
-  bols(wind_mean, by = wind_dir_factor, 
+  bols(wind_mean, by = wind_dir_factor,
        intercept = FALSE, df = 1) +
-  bbs(wind_mean, by = wind_dir_factor, 
+  bbs(wind_mean, by = wind_dir_factor,
       center = TRUE, df = 1) +
   # Mean X Region
   bols(wind_mean, by = regionCode, intercept = FALSE, df = 1) +
   bbs(wind_mean, by = regionCode, center = TRUE, df = 1) +
-  
+ 
   # Direction X Region
   bols(dir_X_regionCode, intercept = FALSE, df = 1) +
-  
+
   # Direction X Gust X Region
-  bols(wind_gust_max, by = dir_X_regionCode, 
+  bols(wind_gust_max, by = dir_X_regionCode,
        intercept = FALSE, df = 1) +
-  bbs(wind_gust_max, by = dir_X_regionCode, 
+  bbs(wind_gust_max, by = dir_X_regionCode,
       center = TRUE, df = 1) +
-  
+
   # Direction X Mean X Region
-  bols(wind_mean, by = dir_X_regionCode, 
+  bols(wind_mean, by = dir_X_regionCode,
        intercept = FALSE, df = 1) +
-  bbs(wind_mean, by = dir_X_regionCode, 
+  bbs(wind_mean, by = dir_X_regionCode,
       center = TRUE, df = 1) +
-  
+
   # # -- Random effects --#
   bols(regionCode, intercept = FALSE, df = 1) +
   bmrf(regionCode, bnd = nb, center = TRUE, df = 1)
 
-nu_f <- mu_f
+nu_f <- #faultCount ~ bols(Intercept, intercept = FALSE)
+  mu_f
 # Assuming the weather forecast is unbiased, 
 # the day of the forecast should only affect the error variance
-sigma_f <- mu_f |>
-  deparse() |>
-  paste(collapse="") |>
-  paste("+ bols(day, intercept = FALSE, df = 1)") |>
-  as.formula()
+sigma_f <- #faultCount ~ bols(Intercept, intercept = FALSE)
+  mu_f |>
+    deparse() |>
+    paste(collapse="") |>
+    paste("+ bols(day, intercept = FALSE, df = 1)") |>
+    as.formula()
 
-full_f <- list(mu = mu_f, sigma = sigma_f, nu = nu_f)
+tau_f <- sigma_f
+
+full_f <- list(mu = mu_f, sigma = sigma_f, nu = nu_f, tau = tau_f)
 
 
 

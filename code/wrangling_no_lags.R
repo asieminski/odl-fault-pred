@@ -68,7 +68,7 @@ dt <- d2 |>
 last_train_day <- max(dt$faultDate) - 365
 
 # Full df normalisation
-dt_fit <- norm_fit(dt)
+dt_fit <- norm_fit(dt, omit = "Intercept")
 dt_trans <- norm_transform(dt, norm_fit = dt_fit)
 dt_validation_weights <- dt$faultDate <= last_train_day
   # Save data
@@ -81,7 +81,7 @@ dt_validation_weights <- dt$faultDate <= last_train_day
 # Faults only normalisation
 dt_fault <- dt |> 
   filter(faultCount != 0)
-dt_fault_fit <- norm_fit(dt_fault)
+dt_fault_fit <- norm_fit(dt_fault, omit = "Intercept")
 dt_fault_trans <- norm_transform(dt_fault, norm_fit = dt_fault_fit)
 dt_fault_validation_weights <- dt_fault$faultDate <= last_train_day
   # Save data

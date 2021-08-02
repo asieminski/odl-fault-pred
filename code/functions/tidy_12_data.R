@@ -32,7 +32,7 @@ old_lightning <- readRDS("res/data_for_modelling/all_data/dt_trans.rds") |>
 val_cen <- val_data |>   
   as_tibble() |> 
   mutate_at(c("dateOfForecast", "faultDate"), as.Date) |> 
-  tidy_12_data(dt_norm_fit) |> 
+  tidy_12_data(norm_fit) |> 
   mutate(lightningCat = factor(lightningCat, 
                                levels = levels(old_lightning), 
                                ordered = TRUE
@@ -47,7 +47,6 @@ df_summ <- mutate(val_cen, id = "test") |>
   bind_rows(mutate(old_df, id = "train")) |> 
   group_by(id) |> 
   summarise(across(where(is.numeric), .fns = list(mean = mean))) 
-view(df_summ)
 
 # This package cannot produce a simple prediction on new data
 # 
@@ -83,19 +82,18 @@ for(i in 1:length(base_learners)){
 xi0 <- exp(f_x)/(1+exp(f_x))
 # xi0[1:10] 
 # predict(mod_bern, type = "response", newdata = head(val_cen, 10))
-nz_val_cen <- filter(val_cen, faultCount > 0)
 K <- length(mod_pos)
 f_x <- list()
 length(f_x) <- K
 for(i in 1:K){
   print(i)
   base_learners <- names(mod_pos[[i]]$baselearner)
-  f_x[[i]] <- rep(mod_pos[[i]]$offset, nrow(nz_val_cen))
+  f_x[[i]] <- rep(mod_pos[[i]]$offset, nrow(val_cen))
   
   for(j in 1:length(base_learners)){
     print(j)
     f_x[[i]] <- f_x[[i]] + 
-      as.vector(predict(mod_pos[[i]], newdata = nz_val_cen,
+      as.vector(predict(mod_pos[[i]], newdata = val_cen,
                         type = "link", 
                         which = base_learners[j]))
   }
@@ -104,11 +102,11 @@ for(i in 1:K){
 for(i in c(1, 2, 4)){
   f_x[[i]] <- exp(f_x[[i]])
 }
-# predict(mod_pos, type = "response", newdata = head(nz_val_cen))
+# predict(mod_pos, type = "response", newdata = head(val_cen))
 # lapply(f_x, head)
 names(f_x) <- c("mu", "sigma", "nu", "tau")
 aug_nz_val_cen <- as_tibble(f_x) |> 
-  bind_cols(nz_val_cen)
+  bind_cols(val_cen)
 aug_val_cen <- val_cen |> 
   mutate(xi0 = xi0)
 aug_both <- left_join(aug_val_cen, aug_nz_val_cen)
@@ -149,7 +147,7 @@ aug_ll$LL |> mean() #-0.5624573
 # 
 # (ll_all - ll_zero - ll_notzero)/sum(aug$faultCount != 0)
 # 
-# saveRDS(aug_ll, "res/test_data_augmented.rds")
+# saveRDS(aug_ll, "res/1_2_test_data_augmented.rds")
 # 
 
 
